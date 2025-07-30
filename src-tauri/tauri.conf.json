@@ -13,11 +13,11 @@
     "windows": [
       {
         "label": "main",
-        "title": "Kimai Desktop",
-        "width": 900,
-        "height": 700,
-        "minWidth": 800,
-        "minHeight": 600,
+        "title": "HiroTrack",
+        "width": 400,
+        "height": 600,
+        "minWidth": 320,
+        "minHeight": 500,
         "resizable": true,
         "fullscreen": false,
         "decorations": true,
@@ -29,11 +29,11 @@
     "security": {
       "csp": null
     },
-    "systemTray": {
+    "trayIcon": {
       "iconPath": "icons/icon.png",
       "iconAsTemplate": true,
       "menuOnLeftClick": false,
-      "tooltip": "Kimai Desktop - Time Tracker"
+      "tooltip": "HiroTrack - Time Tracker"
     }
   },
   "bundle": {

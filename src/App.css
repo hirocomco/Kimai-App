@@ -13,15 +13,15 @@
   }
   
   .input-field {
-    @apply bg-dark-surface border border-gray-600 text-dark-text placeholder-gray-400 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent;
+    @apply bg-dark-surface text-dark-text placeholder-gray-400 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent;
   }
   
   .card {
-    @apply bg-dark-surface rounded-lg border border-gray-700;
+    @apply bg-dark-surface rounded-lg;
   }
   
   .timer-display {
-    @apply text-3xl font-mono font-bold text-dark-text;
+    @apply text-2xl font-mono font-bold text-dark-text;
   }
 }
 

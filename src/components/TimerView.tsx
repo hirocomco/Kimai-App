@@ -5,7 +5,6 @@ import { useProjects, useActivities, useCustomers } from '../hooks/useKimaiApi';
 import { ProjectSelector } from './ProjectSelector';
 import { TimeEntryList } from './TimeEntryList';
 import { CalendarView } from './CalendarView';
-import { SystemTrayButton } from './SystemTrayButton';
 import { SettingsModal } from './SettingsModal';
 import { ApiTester } from './ApiTester';
 
@@ -101,44 +100,30 @@ export function TimerView() {
   return (
     <div className="min-h-screen bg-dark-bg text-dark-text">
       {/* Header */}
-      <div className="titlebar bg-dark-surface border-b border-gray-700 px-4 py-3 flex items-center justify-between">
-        <div className="flex items-center space-x-2">
-          <div className="w-3 h-3 bg-red-500 rounded-full"></div>
-          <div className="w-3 h-3 bg-yellow-500 rounded-full"></div>
-          <div className="w-3 h-3 bg-green-500 rounded-full"></div>
-        </div>
-        
-        <h1 className="text-lg font-semibold flex items-center space-x-2">
-          <span>HiroTrack</span>
-          <ChevronDown className="w-4 h-4" />
-        </h1>
-        
-        <div className="flex items-center space-x-2">
-          <SystemTrayButton />
-          <button 
-            onClick={() => setShowSettings(true)}
-            className="p-2 hover:bg-dark-surface-light rounded-lg transition-colors"
-          >
-            <Settings className="w-4 h-4" />
-          </button>
-        </div>
+      <div className="bg-dark-bg px-3 py-2 flex items-center justify-end">
+        <button 
+          onClick={() => setShowSettings(true)}
+          className="p-2 hover:bg-dark-surface-light rounded-lg transition-colors"
+        >
+          <Settings className="w-4 h-4" />
+        </button>
       </div>
 
       {/* Main Content */}
       <div className="flex flex-col h-[calc(100vh-60px)]">
         {/* Timer Section */}
-        <div className="p-6 border-b border-gray-700">
+        <div className="p-4">
           {/* Project Selection */}
-          <div className="mb-6">
+          <div className="mb-4">
             <button
               onClick={() => setShowProjectSelector(true)}
-              className="w-full text-left p-4 bg-dark-surface hover:bg-dark-surface-light rounded-lg border border-gray-600 transition-colors flex items-center justify-between"
+              className="w-full text-left p-3 bg-dark-surface hover:bg-dark-surface-light rounded-lg transition-colors flex items-center justify-between"
             >
               <div className="flex items-center space-x-3">
                 <div className="w-8 h-8 bg-primary rounded-full flex items-center justify-center">
                   <Play className="w-4 h-4 text-white" />
                 </div>
-                <span className="text-dark-text-secondary">
+                <span className="text-sm text-dark-text-secondary">
                   {getProjectDisplayName()}
                 </span>
               </div>
@@ -171,7 +156,7 @@ export function TimerView() {
                 )}
               </button>
               
-              <button className="w-12 h-12 bg-dark-surface hover:bg-dark-surface-light rounded-full flex items-center justify-center border border-gray-600 transition-colors">
+              <button className="w-12 h-12 bg-dark-surface hover:bg-dark-surface-light rounded-full flex items-center justify-center transition-colors">
                 <Plus className="w-5 h-5 text-gray-400" />
               </button>
             </div>
@@ -194,25 +179,25 @@ export function TimerView() {
           </div>
 
           {/* Quick Stats */}
-          <div className="flex items-center justify-between mt-6 text-sm">
+          <div className="flex items-center justify-between mt-4 text-xs">
             <div className="flex items-center space-x-4">
-              <div className="w-6 h-6 bg-dark-surface rounded border border-gray-600"></div>
-              <div className="w-6 h-6 bg-dark-surface rounded border border-gray-600"></div>
-              <div className="w-6 h-6 bg-dark-surface rounded border border-gray-600"></div>
+              <div className="w-5 h-5 bg-dark-surface rounded"></div>
+              <div className="w-5 h-5 bg-dark-surface rounded"></div>
+              <div className="w-5 h-5 bg-dark-surface rounded"></div>
             </div>
             <div className="text-right">
-              <div className="text-dark-text-secondary">TODAY TOTAL</div>
-              <div className="font-semibold">0:00:00</div>
+              <div className="text-xs text-dark-text-secondary">TODAY TOTAL</div>
+              <div className="text-sm font-medium">0:00:00</div>
             </div>
           </div>
         </div>
 
         {/* View Toggle */}
-        <div className="p-4 border-b border-gray-700">
+        <div className="mb-4">
           <div className="flex bg-dark-surface rounded-lg p-1">
             <button
               onClick={() => setCurrentView('timer')}
-              className={`flex-1 py-2 px-4 rounded-md text-sm font-medium transition-colors ${
+              className={`flex-1 py-2 px-3 rounded-md text-xs font-medium transition-colors ${
                 currentView === 'timer'
                   ? 'bg-dark-surface-light text-dark-text'
                   : 'text-dark-text-secondary hover:text-dark-text'
@@ -222,7 +207,7 @@ export function TimerView() {
             </button>
             <button
               onClick={() => setCurrentView('history')}
-              className={`flex-1 py-2 px-4 rounded-md text-sm font-medium transition-colors ${
+              className={`flex-1 py-2 px-3 rounded-md text-xs font-medium transition-colors ${
                 currentView === 'history'
                   ? 'bg-dark-surface-light text-dark-text'
                   : 'text-dark-text-secondary hover:text-dark-text'
@@ -234,9 +219,9 @@ export function TimerView() {
         </div>
 
         {/* Today's Summary */}
-        <div className="px-4 py-3 border-b border-gray-700 flex items-center justify-between">
+        <div className="mb-4 flex items-center justify-between">
           <div>
-            <span className="text-sm font-medium text-dark-text">TODAY TOTAL 0:00:00</span>
+            <span className="text-xs font-medium text-dark-text">TODAY TOTAL 0:00:00</span>
           </div>
           <button className="text-sm text-dark-text-secondary hover:text-dark-text flex items-center space-x-1">
             <span>DETAILED REPORTS ON WEB APP</span>

@@ -1,11 +1,10 @@
-use tauri_plugin_store::{Store, StoreExt};
-use std::collections::HashMap;
 use serde_json::Value;
 use tauri::{
     menu::{Menu, MenuItem},
-    tray::{ClickType, TrayIconBuilder, TrayIconEvent},
-    Manager, Runtime,
+    tray::{TrayIconBuilder, TrayIconEvent},
+    Manager,
 };
+use tauri_plugin_notification::NotificationExt;
 
 // Learn more about Tauri commands at https://tauri.app/develop/calling-rust/
 #[tauri::command]
@@ -15,54 +14,40 @@ fn greet(name: &str) -> String {
 
 #[tauri::command]
 async fn save_credentials(app: tauri::AppHandle, server_url: String, api_token: String) -> Result<(), String> {
-    let stores = app.state::<tauri_plugin_store::StoreCollection<tauri::Wry>>();
-    let path = std::path::PathBuf::from("credentials.json");
-    
-    let store = stores.with_store(path, |store| {
-        store.insert("server_url".to_string(), Value::String(server_url))?;
-        store.insert("api_token".to_string(), Value::String(api_token))?;
-        store.save()
-    }).map_err(|e| e.to_string())?;
-    
+    let store = tauri_plugin_store::StoreBuilder::new(&app, "credentials.json").build().map_err(|e| e.to_string())?;
+    store.set("server_url", Value::String(server_url));
+    store.set("api_token", Value::String(api_token));
+    store.save().map_err(|e| e.to_string())?;
     Ok(())
 }
 
 #[tauri::command]
 async fn load_credentials(app: tauri::AppHandle) -> Result<Option<(String, String)>, String> {
-    let stores = app.state::<tauri_plugin_store::StoreCollection<tauri::Wry>>();
-    let path = std::path::PathBuf::from("credentials.json");
+    let store = tauri_plugin_store::StoreBuilder::new(&app, "credentials.json").build().map_err(|e| e.to_string())?;
     
-    let result = stores.with_store(path, |store| {
-        let server_url = store.get("server_url").and_then(|v| v.as_str()).map(|s| s.to_string());
-        let api_token = store.get("api_token").and_then(|v| v.as_str()).map(|s| s.to_string());
-        
-        match (server_url, api_token) {
-            (Some(url), Some(token)) => Ok(Some((url, token))),
-            _ => Ok(None),
-        }
-    }).map_err(|e| e.to_string())?;
+    let server_url = store.get("server_url").and_then(|v| v.as_str().map(|s| s.to_string()));
+    let api_token = store.get("api_token").and_then(|v| v.as_str().map(|s| s.to_string()));
     
-    result
+    match (server_url, api_token) {
+        (Some(url), Some(token)) => Ok(Some((url, token))),
+        _ => Ok(None),
+    }
 }
 
 #[tauri::command]
 async fn clear_credentials(app: tauri::AppHandle) -> Result<(), String> {
-    let stores = app.state::<tauri_plugin_store::StoreCollection<tauri::Wry>>();
-    let path = std::path::PathBuf::from("credentials.json");
-    
-    let store = stores.with_store(path, |store| {
-        store.clear()?;
-        store.save()
-    }).map_err(|e| e.to_string())?;
-    
+    let store = tauri_plugin_store::StoreBuilder::new(&app, "credentials.json").build().map_err(|e| e.to_string())?;
+    store.clear();
+    store.save().map_err(|e| e.to_string())?;
     Ok(())
 }
 
 #[tauri::command]
 async fn show_notification(app: tauri::AppHandle, title: String, body: String) -> Result<(), String> {
-    tauri_plugin_notification::NotificationExt::notification(&app)
-        .title(&title)
-        .body(&body)
+    app.notification()
+        .builder()
+        .title(title)
+        .body(body)
         .show()
         .map_err(|e| e.to_string())?;
     Ok(())
@@ -101,7 +86,7 @@ pub fn run() {
         .plugin(tauri_plugin_notification::init())
         .setup(|app| {
             // Create system tray menu
-            let show_item = MenuItem::with_id(app, "show", "Show Kimai Desktop", true, None::<&str>)?;
+            let show_item = MenuItem::with_id(app, "show", "Show HiroTrack", true, None::<&str>)?;
             let hide_item = MenuItem::with_id(app, "hide", "Hide to Tray", true, None::<&str>)?;
             let quit_item = MenuItem::with_id(app, "quit", "Quit", true, None::<&str>)?;
             
@@ -111,7 +96,7 @@ pub fn run() {
             let _tray = TrayIconBuilder::with_id("main")
                 .menu(&menu)
                 .icon(app.default_window_icon().unwrap().clone())
-                .tooltip("Kimai Desktop - Time Tracker")
+                .tooltip("HiroTrack - Time Tracker")
                 .on_tray_icon_event(|tray, event| {
                     match event {
                         TrayIconEvent::Click {
