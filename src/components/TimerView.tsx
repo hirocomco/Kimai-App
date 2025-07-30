@@ -109,7 +109,7 @@ export function TimerView() {
         </div>
         
         <h1 className="text-lg font-semibold flex items-center space-x-2">
-          <span>KIMAI DESKTOP</span>
+          <span>HiroTrack</span>
           <ChevronDown className="w-4 h-4" />
         </h1>
         
