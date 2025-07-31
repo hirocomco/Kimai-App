@@ -1,7 +1,8 @@
 import { useEffect, useState } from 'react';
-import { Play, Pause, Plus, Settings, BarChart3, ChevronDown } from 'lucide-react';
+import { Play, Square, Settings, BarChart3, ChevronDown } from 'lucide-react';
 import { useAppStore } from '../store';
-import { useProjects, useActivities, useCustomers } from '../hooks/useKimaiApi';
+import { useProjects, useActivities, useCustomers, useCreateTimesheet } from '../hooks/useKimaiApi';
+import { KimaiApiClient } from '../services/api';
 import { ProjectSelector } from './ProjectSelector';
 import { TimeEntryList } from './TimeEntryList';
 import { CalendarView } from './CalendarView';
@@ -27,6 +28,9 @@ export function TimerView() {
   const { data: customers = [] } = useCustomers();
   const { data: projects = [] } = useProjects();
   const { data: activities = [] } = useActivities();
+  
+  // Mutation for creating timesheets
+  const createTimesheet = useCreateTimesheet();
 
   // Update elapsed time every second when timer is running
   useEffect(() => {
@@ -52,8 +56,29 @@ export function TimerView() {
 
   const handleStartStop = () => {
     if (timer.isRunning) {
-      stopTimer();
+      const timeEntry = stopTimer();
       setDescription('');
+      
+      // Submit to Kimai server if we have a valid time entry
+      if (timeEntry && timeEntry.project && timeEntry.activity) {
+        const kimaiTimeEntry = {
+          begin: KimaiApiClient.formatDateForApi(new Date(timeEntry.begin)),
+          end: KimaiApiClient.formatDateForApi(new Date(timeEntry.end!)),
+          project: timeEntry.project.id,
+          activity: timeEntry.activity.id,
+          description: timeEntry.description || '',
+        };
+        
+        console.log('Submitting time entry to Kimai:', kimaiTimeEntry);
+        createTimesheet.mutate(kimaiTimeEntry, {
+          onSuccess: (createdEntry) => {
+            console.log('Time entry created successfully:', createdEntry);
+          },
+          onError: (error) => {
+            console.error('Failed to submit time entry to Kimai server:', error);
+          },
+        });
+      }
     } else {
       if (!timer.currentEntry?.project || !timer.currentEntry?.activity) {
         setShowProjectSelector(true);
@@ -97,6 +122,30 @@ export function TimerView() {
     return `${customerName} / ${project.name} / ${activity?.name || 'Unknown'}`;
   };
 
+  const getCustomerInitial = () => {
+    if (!timer.currentEntry?.project) return 'P';
+    
+    const project = timer.currentEntry.project;
+    let customerName = 'P';
+    
+    if (project.customer && typeof project.customer === 'object') {
+      customerName = project.customer.name;
+    } else if (typeof project.customer === 'number') {
+      const customer = customers.find(c => c.id === project.customer);
+      customerName = customer?.name || 'P';
+    } else if (project.customerId) {
+      const customer = customers.find(c => c.id === project.customerId);
+      customerName = customer?.name || 'P';
+    }
+    
+    return customerName.charAt(0).toUpperCase();
+  };
+
+  const getProjectColor = () => {
+    if (!timer.currentEntry?.project) return '#ec4899'; // fallback to primary color
+    return timer.currentEntry.project.color || '#ec4899';
+  };
+
   return (
     <div className="min-h-screen bg-dark-bg text-dark-text">
       {/* Header */}
@@ -120,8 +169,11 @@ export function TimerView() {
               className="w-full text-left p-3 bg-dark-surface hover:bg-dark-surface-light rounded-lg transition-colors flex items-center justify-between"
             >
               <div className="flex items-center space-x-3">
-                <div className="w-8 h-8 bg-primary rounded-full flex items-center justify-center">
-                  <Play className="w-4 h-4 text-white" />
+                <div 
+                  className="w-8 h-8 rounded-full flex items-center justify-center text-white text-sm font-bold"
+                  style={{ backgroundColor: getProjectColor() }}
+                >
+                  {getCustomerInitial()}
                 </div>
                 <span className="text-sm text-dark-text-secondary">
                   {getProjectDisplayName()}
@@ -132,12 +184,12 @@ export function TimerView() {
           </div>
 
           {/* Timer Display and Controls */}
-          <div className="flex items-center justify-between">
-            <div className="timer-display">
+          <div className="flex items-center justify-between py-4">
+            <div className="timer-display px-2">
               {formatTime(timer.elapsedTime)}
             </div>
             
-            <div className="flex items-center space-x-4">
+            <div className="flex items-center">
               <button
                 onClick={handleStartStop}
                 disabled={!timer.currentEntry?.project && !timer.isRunning}
@@ -150,14 +202,10 @@ export function TimerView() {
                 }`}
               >
                 {timer.isRunning ? (
-                  <Pause className="w-6 h-6 text-white" />
+                  <Square className="w-6 h-6 text-white" />
                 ) : (
                   <Play className="w-6 h-6 text-white ml-1" />
                 )}
-              </button>
-              
-              <button className="w-12 h-12 bg-dark-surface hover:bg-dark-surface-light rounded-full flex items-center justify-center transition-colors">
-                <Plus className="w-5 h-5 text-gray-400" />
               </button>
             </div>
           </div>
@@ -179,12 +227,7 @@ export function TimerView() {
           </div>
 
           {/* Quick Stats */}
-          <div className="flex items-center justify-between mt-4 text-xs">
-            <div className="flex items-center space-x-4">
-              <div className="w-5 h-5 bg-dark-surface rounded"></div>
-              <div className="w-5 h-5 bg-dark-surface rounded"></div>
-              <div className="w-5 h-5 bg-dark-surface rounded"></div>
-            </div>
+          <div className="flex items-center justify-end mt-4 text-xs">
             <div className="text-right">
               <div className="text-xs text-dark-text-secondary">TODAY TOTAL</div>
               <div className="text-sm font-medium">0:00:00</div>
@@ -193,7 +236,7 @@ export function TimerView() {
         </div>
 
         {/* View Toggle */}
-        <div className="mb-4">
+        <div className="mb-4 px-4">
           <div className="flex bg-dark-surface rounded-lg p-1">
             <button
               onClick={() => setCurrentView('timer')}
@@ -219,7 +262,7 @@ export function TimerView() {
         </div>
 
         {/* Today's Summary */}
-        <div className="mb-4 flex items-center justify-between">
+        <div className="mb-4 px-4 flex items-center justify-between">
           <div>
             <span className="text-xs font-medium text-dark-text">TODAY TOTAL 0:00:00</span>
           </div>

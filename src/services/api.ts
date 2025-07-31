@@ -1,5 +1,5 @@
 import { invoke } from '@tauri-apps/api/core';
-import { Customer, Project, Activity, TimeEntry } from '../store';
+import { Customer, Project, Activity, TimeEntry, TimeEntryApiResponse } from '../store';
 
 export interface KimaiApiError {
   message: string;
@@ -243,18 +243,18 @@ export class KimaiApiClient {
     begin?: string; // ISO date
     end?: string;   // ISO date
     exported?: boolean;
-  }): Promise<TimeEntry[]> {
+  }): Promise<TimeEntryApiResponse[]> {
     const query = params ? '?' + new URLSearchParams(
       Object.entries(params)
         .filter(([, value]) => value !== undefined)
         .map(([key, value]) => [key, String(value)])
     ).toString() : '';
     
-    return this.request<TimeEntry[]>(`/timesheets${query}`);
+    return this.request<TimeEntryApiResponse[]>(`/timesheets${query}`);
   }
 
-  async getTimesheet(id: number): Promise<TimeEntry> {
-    return this.request<TimeEntry>(`/timesheets/${id}`);
+  async getTimesheet(id: number): Promise<TimeEntryApiResponse> {
+    return this.request<TimeEntryApiResponse>(`/timesheets/${id}`);
   }
 
   async createTimesheet(timeEntry: {
@@ -263,8 +263,8 @@ export class KimaiApiClient {
     project: number;
     activity: number;
     description?: string;
-  }): Promise<TimeEntry> {
-    return this.request<TimeEntry>('/timesheets', {
+  }): Promise<TimeEntryApiResponse> {
+    return this.request<TimeEntryApiResponse>('/timesheets', {
       method: 'POST',
       body: JSON.stringify(timeEntry),
     });
@@ -276,8 +276,8 @@ export class KimaiApiClient {
     project: number;
     activity: number;
     description: string;
-  }>): Promise<TimeEntry> {
-    return this.request<TimeEntry>(`/timesheets/${id}`, {
+  }>): Promise<TimeEntryApiResponse> {
+    return this.request<TimeEntryApiResponse>(`/timesheets/${id}`, {
       method: 'PATCH',
       body: JSON.stringify(timeEntry),
     });
@@ -376,22 +376,22 @@ class KimaiApiSingleton {
     return this.client.createActivity(activity);
   }
 
-  async getTimesheets(params?: any) {
+  async getTimesheets(params?: any): Promise<TimeEntryApiResponse[]> {
     await this.ensureInitialized();
     return this.client.getTimesheets(params);
   }
 
-  async getTimesheet(id: number) {
+  async getTimesheet(id: number): Promise<TimeEntryApiResponse> {
     await this.ensureInitialized();
     return this.client.getTimesheet(id);
   }
 
-  async createTimesheet(timeEntry: any) {
+  async createTimesheet(timeEntry: any): Promise<TimeEntryApiResponse> {
     await this.ensureInitialized();
     return this.client.createTimesheet(timeEntry);
   }
 
-  async updateTimesheet(id: number, timeEntry: any) {
+  async updateTimesheet(id: number, timeEntry: any): Promise<TimeEntryApiResponse> {
     await this.ensureInitialized();
     return this.client.updateTimesheet(id, timeEntry);
   }
