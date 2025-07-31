@@ -139,50 +139,50 @@ export function TimeEntryList() {
       {sortedDates.map((dateStr) => {
         const entries = groupedEntries[dateStr];
         return (
-          <div key={dateStr} className="p-4">
+          <div key={dateStr} className="p-3">
             {/* Date Header */}
-            <div className="flex items-center justify-between mb-4">
-              <h3 className="text-lg font-semibold text-dark-text">
+            <div className="flex items-center justify-between mb-3">
+              <h3 className="text-sm font-semibold text-dark-text">
                 {getDateLabel(dateStr)}
               </h3>
-              <div className="text-dark-text font-medium">
+              <div className="text-xs text-dark-text font-medium">
                 {getTotalForDate(entries)}
               </div>
             </div>
 
             {/* Time Entries */}
-            <div className="space-y-3">
+            <div className="space-y-2">
               {entries.map((entry) => (
                 <div
                   key={entry.id}
-                  className="bg-dark-surface rounded-lg p-3 hover:bg-dark-surface-light transition-colors"
+                  className="bg-dark-surface rounded-lg p-2 hover:bg-dark-surface-light transition-colors"
                 >
                   <div className="flex items-start justify-between">
-                    <div className="flex items-center space-x-3 flex-1 min-w-0">
+                    <div className="flex items-center space-x-2 flex-1 min-w-0">
                       {/* Project Icon */}
-                      <div className="w-6 h-6 bg-dark-bg rounded flex items-center justify-center text-xs font-bold text-dark-text">
+                      <div className="w-5 h-5 bg-dark-bg rounded flex items-center justify-center text-xs font-bold text-dark-text flex-shrink-0">
                         {entry.project.name.charAt(0).toUpperCase()}
                       </div>
                       
                       {/* Project/Activity Info */}
                       <div className="flex-1 min-w-0">
                         {/* First row: Project title and duration */}
-                        <div className="flex items-center justify-between mb-1">
-                          <div className="text-dark-text font-medium truncate">
+                        <div className="flex items-center justify-between mb-0.5">
+                          <div className="text-xs text-dark-text font-medium truncate">
                             {entry.project.customer.name} / {entry.project.name} / {entry.activity.name}
                           </div>
-                          <div className="text-dark-text font-mono">
+                          <div className="text-xs text-dark-text font-mono ml-2 flex-shrink-0">
                             {formatDuration(entry.duration)}
                           </div>
                         </div>
                         
                         {/* Second row: Color dot + description */}
-                        <div className="flex items-center space-x-1 text-sm text-dark-text-secondary mb-1">
+                        <div className="flex items-center space-x-1 text-xs text-dark-text-secondary mb-0.5">
                           <div 
-                            className="w-2 h-2 rounded-full"
+                            className="w-1.5 h-1.5 rounded-full flex-shrink-0"
                             style={{ backgroundColor: entry.project.color || '#6b7280' }}
                           />
-                          <span>{entry.description || 'No Description'}</span>
+                          <span className="truncate">{entry.description || 'No Description'}</span>
                         </div>
                         
                         {/* Third row: Time range */}

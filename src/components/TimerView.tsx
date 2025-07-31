@@ -160,54 +160,49 @@ export function TimerView() {
 
       {/* Main Content */}
       <div className="flex flex-col h-[calc(100vh-60px)]">
-        {/* Timer Section */}
+        {/* Timer Section - Single Line Layout */}
         <div className="p-4">
-          {/* Project Selection */}
-          <div className="mb-4">
+          <div className="flex items-center justify-between mb-4">
+            {/* Project Selection Button */}
             <button
               onClick={() => setShowProjectSelector(true)}
-              className="w-full text-left p-3 bg-dark-surface hover:bg-dark-surface-light rounded-lg transition-colors flex items-center justify-between"
+              className="text-left p-2 bg-dark-surface hover:bg-dark-surface-light rounded-lg transition-colors flex items-center space-x-2 flex-1 min-w-0"
             >
-              <div className="flex items-center space-x-3">
-                <div 
-                  className="w-8 h-8 rounded-full flex items-center justify-center text-white text-sm font-bold"
-                  style={{ backgroundColor: getProjectColor() }}
-                >
-                  {getCustomerInitial()}
-                </div>
-                <span className="text-sm text-dark-text-secondary">
-                  {getProjectDisplayName()}
-                </span>
+              <div 
+                className="w-6 h-6 rounded-full flex items-center justify-center text-white text-xs font-bold flex-shrink-0"
+                style={{ backgroundColor: getProjectColor() }}
+              >
+                {getCustomerInitial()}
               </div>
-              <ChevronDown className="w-4 h-4 text-gray-400" />
+              <span className="text-xs text-dark-text-secondary truncate">
+                {getProjectDisplayName()}
+              </span>
+              <ChevronDown className="w-3 h-3 text-gray-400 flex-shrink-0" />
             </button>
-          </div>
 
-          {/* Timer Display and Controls */}
-          <div className="flex items-center justify-between py-4">
-            <div className="timer-display px-2">
+            {/* Timer Display */}
+            <div className="timer-display text-center mx-3 text-xl font-mono">
               {formatTime(timer.elapsedTime)}
             </div>
             
-            <div className="flex items-center">
-              <button
-                onClick={handleStartStop}
-                disabled={!timer.currentEntry?.project && !timer.isRunning}
-                className={`w-16 h-16 rounded-full flex items-center justify-center transition-all ${
-                  timer.isRunning
-                    ? 'bg-red-500 hover:bg-red-600'
-                    : timer.currentEntry?.project
-                    ? 'bg-primary hover:bg-primary-light'
-                    : 'bg-gray-600 cursor-not-allowed'
-                }`}
-              >
-                {timer.isRunning ? (
-                  <Square className="w-6 h-6 text-white" />
-                ) : (
-                  <Play className="w-6 h-6 text-white ml-1" />
-                )}
-              </button>
-            </div>
+            {/* Play/Stop Button */}
+            <button
+              onClick={handleStartStop}
+              disabled={!timer.currentEntry?.project && !timer.isRunning}
+              className={`w-12 h-12 rounded-full flex items-center justify-center transition-all flex-shrink-0 ${
+                timer.isRunning
+                  ? 'bg-red-500 hover:bg-red-600'
+                  : timer.currentEntry?.project
+                  ? 'bg-primary hover:bg-primary-light'
+                  : 'bg-gray-600 cursor-not-allowed'
+              }`}
+            >
+              {timer.isRunning ? (
+                <Square className="w-4 h-4 text-white" />
+              ) : (
+                <Play className="w-4 h-4 text-white ml-0.5" />
+              )}
+            </button>
           </div>
 
           {/* Description Input */}
@@ -227,20 +222,20 @@ export function TimerView() {
           </div>
 
           {/* Quick Stats */}
-          <div className="flex items-center justify-end mt-4 text-xs">
+          <div className="flex items-center justify-end mt-3 text-xs">
             <div className="text-right">
               <div className="text-xs text-dark-text-secondary">TODAY TOTAL</div>
-              <div className="text-sm font-medium">0:00:00</div>
+              <div className="text-xs font-medium">0:00:00</div>
             </div>
           </div>
         </div>
 
         {/* View Toggle */}
-        <div className="mb-4 px-4">
+        <div className="mb-3 px-4">
           <div className="flex bg-dark-surface rounded-lg p-1">
             <button
               onClick={() => setCurrentView('timer')}
-              className={`flex-1 py-2 px-3 rounded-md text-xs font-medium transition-colors ${
+              className={`flex-1 py-1.5 px-2 rounded-md text-xs font-medium transition-colors ${
                 currentView === 'timer'
                   ? 'bg-dark-surface-light text-dark-text'
                   : 'text-dark-text-secondary hover:text-dark-text'
@@ -250,7 +245,7 @@ export function TimerView() {
             </button>
             <button
               onClick={() => setCurrentView('history')}
-              className={`flex-1 py-2 px-3 rounded-md text-xs font-medium transition-colors ${
+              className={`flex-1 py-1.5 px-2 rounded-md text-xs font-medium transition-colors ${
                 currentView === 'history'
                   ? 'bg-dark-surface-light text-dark-text'
                   : 'text-dark-text-secondary hover:text-dark-text'
@@ -262,13 +257,13 @@ export function TimerView() {
         </div>
 
         {/* Today's Summary */}
-        <div className="mb-4 px-4 flex items-center justify-between">
+        <div className="mb-3 px-4 flex items-center justify-between">
           <div>
             <span className="text-xs font-medium text-dark-text">TODAY TOTAL 0:00:00</span>
           </div>
-          <button className="text-sm text-dark-text-secondary hover:text-dark-text flex items-center space-x-1">
+          <button className="text-xs text-dark-text-secondary hover:text-dark-text flex items-center space-x-1">
             <span>DETAILED REPORTS ON WEB APP</span>
-            <BarChart3 className="w-4 h-4" />
+            <BarChart3 className="w-3 h-3" />
           </button>
         </div>
 
