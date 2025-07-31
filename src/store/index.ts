@@ -1,6 +1,7 @@
 import { create } from 'zustand';
 import { devtools } from 'zustand/middleware';
 import { systemService } from '../services/system';
+import { kimaiApi, KimaiApiClient } from '../services/api';
 
 // Types for our data models
 export interface Customer {
@@ -81,7 +82,7 @@ interface AppStore {
   
   // Timer actions
   startTimer: (entry: Partial<TimeEntry>) => void;
-  stopTimer: () => void;
+  stopTimer: () => Promise<void>;
   updateElapsedTime: () => void;
   setTimerEntry: (entry: Partial<TimeEntry>) => void;
   
@@ -166,7 +167,7 @@ export const useAppStore = create<AppStore>()(
         }
       },
       
-      stopTimer: () => {
+      stopTimer: async () => {
         const { timer } = get();
         if (timer.isRunning && timer.startTime && timer.currentEntry) {
           const endTime = new Date();
@@ -196,18 +197,54 @@ export const useAppStore = create<AppStore>()(
           // Reset tray tooltip
           systemService.updateTrayTooltip('Kimai Desktop - Time Tracker');
           
-          // Add to time entries
-          set((state) => ({
-            timeEntries: [timeEntry, ...state.timeEntries],
-            timer: {
-              isRunning: false,
-              startTime: null,
-              currentEntry: null,
-              elapsedTime: 0,
-            },
-          }));
-          
-          return timeEntry;
+          // Submit time entry to Kimai server
+          try {
+            const kimaiTimeEntry = {
+              begin: KimaiApiClient.formatDateForApi(timer.startTime),
+              end: KimaiApiClient.formatDateForApi(endTime),
+              project: timer.currentEntry.project!.id,
+              activity: timer.currentEntry.activity!.id,
+              description: timer.currentEntry.description || '',
+            };
+            
+            console.log('Submitting time entry to Kimai:', kimaiTimeEntry);
+            const createdEntry = await kimaiApi.createTimesheet(kimaiTimeEntry);
+            console.log('Time entry created successfully:', createdEntry);
+            
+            // Add the server-created entry to local state
+            set((state) => ({
+              timeEntries: [createdEntry, ...state.timeEntries],
+              timer: {
+                isRunning: false,
+                startTime: null,
+                currentEntry: null,
+                elapsedTime: 0,
+              },
+            }));
+            
+            return createdEntry;
+          } catch (error) {
+            console.error('Failed to submit time entry to Kimai server:', error);
+            
+            // Still add to local entries even if server submission fails
+            set((state) => ({
+              timeEntries: [timeEntry, ...state.timeEntries],
+              timer: {
+                isRunning: false,
+                startTime: null,
+                currentEntry: null,
+                elapsedTime: 0,
+              },
+            }));
+            
+            // Show error notification
+            systemService.showNotification(
+              'Time Entry Not Synced',
+              `Failed to sync with Kimai server: ${error instanceof Error ? error.message : 'Unknown error'}`
+            );
+            
+            return timeEntry;
+          }
         }
         
         set({
