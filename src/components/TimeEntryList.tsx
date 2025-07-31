@@ -155,59 +155,41 @@ export function TimeEntryList() {
               {entries.map((entry) => (
                 <div
                   key={entry.id}
-                  className="bg-dark-surface rounded-lg p-4 hover:bg-dark-surface-light transition-colors"
+                  className="bg-dark-surface rounded-lg p-3 hover:bg-dark-surface-light transition-colors"
                 >
                   <div className="flex items-start justify-between">
-                    <div className="flex-1 min-w-0">
+                    <div className="flex items-center space-x-3 flex-1 min-w-0">
+                      {/* Project Icon */}
+                      <div className="w-6 h-6 bg-dark-bg rounded flex items-center justify-center text-xs font-bold text-dark-text">
+                        {entry.project.name.charAt(0).toUpperCase()}
+                      </div>
+                      
                       {/* Project/Activity Info */}
-                      <div className="flex items-center space-x-2 mb-2">
-                        <div className="w-6 h-6 bg-dark-bg rounded flex items-center justify-center text-xs font-bold text-dark-text">
-                          {entry.project.name.charAt(0).toUpperCase()}
-                        </div>
-                        <div className="flex-1 min-w-0">
+                      <div className="flex-1 min-w-0">
+                        {/* First row: Project title and duration */}
+                        <div className="flex items-center justify-between mb-1">
                           <div className="text-dark-text font-medium truncate">
                             {entry.project.customer.name} / {entry.project.name} / {entry.activity.name}
                           </div>
-                          <div className="flex items-center space-x-1 text-sm text-dark-text-secondary">
-                            <div 
-                              className="w-2 h-2 rounded-full"
-                              style={{ backgroundColor: entry.project.color || '#6b7280' }}
-                            />
-                            <span>{entry.project.customer.name}</span>
-                            <span>•</span>
-                            <span>{entry.project.name}</span>
+                          <div className="text-dark-text font-mono">
+                            {formatDuration(entry.duration)}
                           </div>
                         </div>
-                      </div>
-
-                      {/* Description */}
-                      {entry.description && (
-                        <div className="text-dark-text mb-2 text-sm">
-                          {entry.description}
+                        
+                        {/* Second row: Color dot + description */}
+                        <div className="flex items-center space-x-1 text-sm text-dark-text-secondary mb-1">
+                          <div 
+                            className="w-2 h-2 rounded-full"
+                            style={{ backgroundColor: entry.project.color || '#6b7280' }}
+                          />
+                          <span>{entry.description || 'No Description'}</span>
                         </div>
-                      )}
-
-                      {/* Time Info */}
-                      <div className="text-xs text-dark-text-secondary">
-                        {format(new Date(entry.begin), 'HH:mm')} - {entry.end ? format(new Date(entry.end), 'HH:mm') : 'Running'}
-                      </div>
-                    </div>
-
-                    {/* Duration and Actions */}
-                    <div className="flex items-center space-x-3 ml-4">
-                      <div className="text-right">
-                        <div className="text-dark-text font-mono">
-                          {formatDuration(entry.duration)}
+                        
+                        {/* Third row: Time range */}
+                        <div className="text-xs text-dark-text-secondary">
+                          {format(new Date(entry.begin), 'HH:mm')} - {entry.end ? format(new Date(entry.end), 'HH:mm') : 'Running'}
                         </div>
                       </div>
-                      
-                      <button
-                        onClick={() => handleRestartEntry(entry)}
-                        className="p-2 hover:bg-dark-bg rounded-lg transition-colors"
-                        title="Restart this timer"
-                      >
-                        <Play className="w-4 h-4 text-dark-text-secondary" />
-                      </button>
                     </div>
                   </div>
                 </div>

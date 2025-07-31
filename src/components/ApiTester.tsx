@@ -1,6 +1,11 @@
 import { kimaiApi } from '../services/api';
 
 export function ApiTester() {
+  // Only show in development mode
+  if (import.meta.env.PROD) {
+    return null;
+  }
+
   const testDirectApiCall = async () => {
     console.log('=== DIRECT API TESTING ===');
     
